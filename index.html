@@ -1,2 +1,60 @@
-2025-05-12
-Publish-centric model of AI development which is shared and collaborated with the broader AI community.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for character encoding and responsive viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Development Model</title>
+</head>
+<body>
+    <div>
+        <label for="dateSelector">View version from:</label>
+        <input type="date" id="dateSelector" value="2025-05-12">
+    </div>
+
+    <div id="content">
+        <div class="version" data-date="2025-05-12">
+            <p>Publish-centric model of AI development which is shared and collaborated with the broader AI community.</p>
+            <ul>
+                <li>Exploring usage of Cursor in frontend development.</li>
+                <li>Listening to <a href="https://podcasts.apple.com/us/podcast/understanding-ai-agents-time-horizons-sycophancy-and/id1170991978?i=1000706976530">Understanding AI Agents: Time Horizons, Sycophancy, and More</a>.</li>
+                <li>Learning Resources:
+                    <ul>
+                        <li><a href="https://colab.research.google.com/drive/1cajsoBPFzX_j1lFts6_oxShRsnyiQUH7" target="_blank">My AI Learning Journey Notebook</a> - Interactive notebook showing my progress in AI development</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div class="version" data-date="2025-05-11">
+            <p>Conceptual framework for AI development collaboration.</p>
+        </div>
+        <div class="version" data-date="2025-05-10">
+            <p>Basic outline of the publish-centric approach.</p>
+        </div>
+    </div>
+
+    <script>
+        // Basic JavaScript to handle version switching
+        const dateSelector = document.getElementById('dateSelector');
+        const versions = document.querySelectorAll('.version');
+
+        function showVersion(date) {
+            versions.forEach(version => {
+                if (version.dataset.date === date) {
+                    version.style.display = 'block';
+                } else {
+                    version.style.display = 'none';
+                }
+            });
+        }
+
+        // Show initial version
+        showVersion(dateSelector.value);
+
+        // Handle date changes
+        dateSelector.addEventListener('change', (e) => {
+            showVersion(e.target.value);
+        });
+    </script>
+</body>
+</html>
