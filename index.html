@@ -1,60 +1,225 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Meta tags for character encoding and responsive viewport -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Development Model</title>
-</head>
-<body>
-    <div>
-        <label for="dateSelector">View version from:</label>
-        <input type="date" id="dateSelector" value="2025-05-12">
-    </div>
-
-    <div id="content">
-        <div class="version" data-date="2025-05-12">
-            <p>Publish-centric model of AI development which is shared and collaborated with the broader AI community.</p>
-            <ul>
-                <li>Exploring usage of Cursor in frontend development.</li>
-                <li>Listening to <a href="https://podcasts.apple.com/us/podcast/understanding-ai-agents-time-horizons-sycophancy-and/id1170991978?i=1000706976530">Understanding AI Agents: Time Horizons, Sycophancy, and More</a>.</li>
-                <li>Learning Resources:
-                    <ul>
-                        <li><a href="https://colab.research.google.com/drive/1cajsoBPFzX_j1lFts6_oxShRsnyiQUH7" target="_blank">My AI Learning Journey Notebook</a> - Interactive notebook showing my progress in AI development</li>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <div class="version" data-date="2025-05-11">
-            <p>Conceptual framework for AI development collaboration.</p>
-        </div>
-        <div class="version" data-date="2025-05-10">
-            <p>Basic outline of the publish-centric approach.</p>
-        </div>
-    </div>
-
-    <script>
-        // Basic JavaScript to handle version switching
-        const dateSelector = document.getElementById('dateSelector');
-        const versions = document.querySelectorAll('.version');
-
-        function showVersion(date) {
-            versions.forEach(version => {
-                if (version.dataset.date === date) {
-                    version.style.display = 'block';
-                } else {
-                    version.style.display = 'none';
-                }
-            });
+    <title>AI Development Model - Version History</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
         }
 
-        // Show initial version
-        showVersion(dateSelector.value);
+        .commit-history {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 2rem;
+            z-index: 100;
+        }
 
-        // Handle date changes
-        dateSelector.addEventListener('change', (e) => {
-            showVersion(e.target.value);
+        .commit-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .commit-selector select {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+            min-width: 300px;
+        }
+
+        #contentArea {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="commit-history">
+        <div class="commit-selector">
+            <label for="commitSelector">View version from commit:</label>
+            <select id="commitSelector" aria-label="Select commit">
+                <option value="">Loading commits...</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="contentArea">
+        <!-- Content will be loaded here -->
+    </div>
+
+    <script type="module">
+        // Configuration
+        const config = {
+            repoOwner: import.meta.env.VITE_GITHUB_REPO_OWNER,
+            repoName: import.meta.env.VITE_GITHUB_REPO_NAME,
+            filePath: 'index.html',
+            isDevelopment: import.meta.env.VITE_USE_LOCAL_CONTENT === 'true'
+        };
+
+        // UI Elements
+        const elements = {
+            contentArea: document.getElementById('contentArea'),
+            commitSelector: document.getElementById('commitSelector')
+        };
+
+        // Show development mode indicator if in development
+        if (config.isDevelopment) {
+            const devIndicator = document.createElement('div');
+            devIndicator.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #ffd700;
+                color: #000;
+                padding: 8px 16px;
+                border-radius: 4px;
+                font-weight: bold;
+                z-index: 1000;
+            `;
+            devIndicator.textContent = 'Development Mode';
+            document.body.appendChild(devIndicator);
+        }
+
+        // Content Loading
+        async function loadContent(commitSha = null) {
+            elements.contentArea.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading content...</div>';
+            
+            try {
+                if (config.isDevelopment && (!commitSha || commitSha === 'local')) {
+                    // Load local content in development mode
+                    const response = await fetch('content.html');
+                    if (!response.ok) throw new Error(`Failed to load content.html: ${response.statusText}`);
+                    
+                    const content = await response.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(content, 'text/html');
+                    elements.contentArea.innerHTML = doc.body.innerHTML;
+                } else {
+                    // Load content from GitHub
+                    console.log('Fetching from GitHub:', { commitSha });
+                    
+                    // First try to load content.html
+                    let response = await fetch(
+                        `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/content.html?ref=${commitSha}`
+                    );
+                    
+                    // If content.html doesn't exist, fall back to index.html
+                    if (response.status === 404) {
+                        console.log('content.html not found, falling back to index.html');
+                        response = await fetch(
+                            `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/index.html?ref=${commitSha}`
+                        );
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('GitHub API response:', { 
+                        status: response.status,
+                        contentType: response.headers.get('content-type'),
+                        dataKeys: Object.keys(data)
+                    });
+                    
+                    if (!data.content) {
+                        throw new Error('No content found in GitHub API response');
+                    }
+                    
+                    try {
+                        const content = atob(data.content);
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(content, 'text/html');
+                        elements.contentArea.innerHTML = doc.body.innerHTML;
+                    } catch (decodeError) {
+                        console.error('Error decoding content:', decodeError);
+                        console.log('Content to decode:', data.content);
+                        throw new Error(`Failed to decode content: ${decodeError.message}`);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading content:', error);
+                elements.contentArea.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #666;">
+                        <h2>Error Loading Content</h2>
+                        <p>${error.message}</p>
+                        <p>Please check the console for more details.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Commit History Management
+        async function initializeCommitHistory() {
+            try {
+                const response = await fetch(
+                    `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/commits?path=${config.filePath}`
+                );
+                const commits = await response.json();
+                console.log('GitHub API response:', commits);
+                
+                // Clear loading message
+                elements.commitSelector.innerHTML = '';
+                
+                // Add local development option if in development mode
+                if (config.isDevelopment) {
+                    const localOption = document.createElement('option');
+                    localOption.value = 'local';
+                    localOption.textContent = 'Local Development';
+                    elements.commitSelector.appendChild(localOption);
+                }
+                
+                // Add commit options
+                if (Array.isArray(commits)) {
+                    commits.forEach(commit => {
+                        const option = document.createElement('option');
+                        option.value = commit.sha;
+                        option.textContent = `${new Date(commit.commit.author.date).toLocaleString()} - ${commit.commit.message.split('\n')[0]}`;
+                        elements.commitSelector.appendChild(option);
+                    });
+                } else {
+                    console.error('Expected array of commits, got:', typeof commits);
+                    elements.commitSelector.innerHTML = '<option value="">Error: Invalid commit data</option>';
+                }
+            } catch (error) {
+                console.error('Error loading commit history:', error);
+                elements.commitSelector.innerHTML = '<option value="">Error loading commits</option>';
+            }
+        }
+
+        // Event Handlers
+        elements.commitSelector.addEventListener('change', (e) => {
+            if (e.target.value) {
+                loadContent(e.target.value);
+            }
         });
+
+        // Initialize
+        async function initialize() {
+            // Validate configuration
+            if (!config.repoOwner || !config.repoName) {
+                elements.contentArea.innerHTML = 'Configuration error: Missing required environment variables';
+                return;
+            }
+
+            // Load initial content
+            await loadContent(config.isDevelopment ? 'local' : null);
+            
+            // Initialize commit history in the background
+            initializeCommitHistory();
+        }
+
+        // Start the application
+        initialize();
     </script>
 </body>
-</html>
+</html> 
