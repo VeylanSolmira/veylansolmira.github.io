@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   // Base public path when served in production
-  base: '/',
+  base: '/veylansolmira.github.io/',
   
   // Development server configuration
   server: {
@@ -31,9 +31,9 @@ export default defineConfig({
 
   define: {
     'import.meta.env': JSON.stringify({
-      VITE_GITHUB_REPO_OWNER: 'veylansolmira',
-      VITE_GITHUB_REPO_NAME: 'veylansolmira.github.io',
-      VITE_USE_LOCAL_CONTENT: 'false'
+      VITE_GITHUB_REPO_OWNER: process.env.VITE_GITHUB_REPO_OWNER || 'veylansolmira',
+      VITE_GITHUB_REPO_NAME: process.env.VITE_GITHUB_REPO_NAME || 'veylansolmira.github.io',
+      VITE_USE_LOCAL_CONTENT: process.env.VITE_USE_LOCAL_CONTENT || 'false'
     })
   }
 }) 
