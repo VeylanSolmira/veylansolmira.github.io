@@ -90,10 +90,13 @@
         }
 
         // Content Loading
+        const defaultBranch = 'main'; // or 'master' if that's your default
+
         async function loadContent(commitSha = null) {
             elements.contentArea.innerHTML = '<div style="text-align: center; padding: 2rem;">Loading content...</div>';
             
             try {
+                const ref = commitSha || defaultBranch;
                 if (config.isDevelopment && (!commitSha || commitSha === 'local')) {
                     // Load local content in development mode
                     const response = await fetch('content.html');
@@ -109,14 +112,14 @@
                     
                     // First try to load content.html
                     let response = await fetch(
-                        `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/content.html?ref=${commitSha}`
+                        `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/content.html?ref=${ref}`
                     );
                     
                     // If content.html doesn't exist, fall back to index.html
                     if (response.status === 404) {
                         console.log('content.html not found, falling back to index.html');
                         response = await fetch(
-                            `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/index.html?ref=${commitSha}`
+                            `https://api.github.com/repos/${config.repoOwner}/${config.repoName}/contents/index.html?ref=${ref}`
                         );
                     }
                     
