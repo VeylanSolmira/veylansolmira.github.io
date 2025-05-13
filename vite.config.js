@@ -30,8 +30,10 @@ export default defineConfig({
   },
 
   define: {
-    'import.meta.env.VITE_GITHUB_REPO_OWNER': JSON.stringify('veylansolmira'),
-    'import.meta.env.VITE_GITHUB_REPO_NAME': JSON.stringify('veylansolmira.github.io'),
-    'import.meta.env.VITE_USE_LOCAL_CONTENT': JSON.stringify('true')
+    'import.meta.env': JSON.stringify({
+      VITE_GITHUB_REPO_OWNER: 'veylansolmira',
+      VITE_GITHUB_REPO_NAME: 'veylansolmira.github.io',
+      VITE_USE_LOCAL_CONTENT: 'false'
+    })
   }
 }) 
