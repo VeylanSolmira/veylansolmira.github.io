@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   // Base public path when served in production
-  base: '/veylansolmira.github.io/',
+  base: '/',
   
   // Development server configuration
   server: {
