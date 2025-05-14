@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literature - Ecological AI</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .toolbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-bottom: 1px solid #eee;
+            padding: 0.75rem 2rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .toolbar h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .toolbar h1 a {
+            color: inherit;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .toolbar h1 a:hover {
+            color: #007AFF;
+        }
+
+        .toolbar-button {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .toolbar-button:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .toolbar-button:active {
+            background: #eee;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding:3rem 2rem 2rem;
+        }
+
+        .literature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .literature-table th,
+        .literature-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .literature-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 4rem;
+        }
+
+        .literature-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .literature-table td {
+            color: #444;
+        }
+
+        .completion-cell {
+            width: 100px;
+        }
+
+        .completion-bar {
+            width: 100%;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .completion-fill {
+            height: 100%;
+            background: #007AFF;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .toolbar {
+                padding: 0.75rem 1rem;
+            }
+
+            .main-content {
+                padding: 4rem 1rem 1rem;
+            }
+
+            .literature-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+    <script src="toolbar.js"></script>
+</head>
+<body>
+    <!-- <div class="toolbar">
+        <h1><a href="index.html">Ecological AI</a></h1>
+        <a href="interests.html" class="toolbar-button">Back to Interests</a>
+    </div> -->
+
+    <div class="main-content">
+        <h2>Literature Review</h2>
+        <table class="literature-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Year</th>
+                    <th>Rank</th>
+                    <th>Completion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- First 10 rows as example -->
+                <tr>
+                    <td>The Ecological Impact of AI Systems</td>
+                    <td>Smith, J.</td>
+                    <td>2023</td>
+                    <td>1</td>
+                    <td class="completion-cell">
+                        <div class="completion-bar">
+                            <div class="completion-fill" style="width: 100%"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sustainable Computing in the Age of AI</td>
+                    <td>Johnson, M.</td>
+                    <td>2022</td>
+                    <td>2</td>
+                    <td class="completion-cell">
+                        <div class="completion-bar">
+                            <div class="completion-fill" style="width: 75%"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Green AI: A Comprehensive Review</td>
+                    <td>Williams, R.</td>
+                    <td>2023</td>
+                    <td>3</td>
+                    <td class="completion-cell">
+                        <div class="completion-bar">
+                            <div class="completion-fill" style="width: 50%"></div>
+                        </div>
+                    </td>
+                </tr>
+                <!-- Add more rows here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchBooks() {
+            try {
+                const response = await fetch('https://thegreatestbooks.org/index.csv');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const csvText = await response.text();
+                
+                // Parse CSV
+                const rows = csvText.split('\n')
+                    .map(row => row.split(','))
+                    .filter(row => row.length >= 3); // Ensure we have at least title, author, year
+                
+                const tableBody = document.querySelector('.literature-table tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                // Process first 100 books
+                const books = rows.slice(1, 101); // Skip header row, take first 100 books
+                
+                books.forEach((row, index) => {
+                    const [title, author, year] = row;
+                    const completion = Math.floor(Math.random() * 100); // We'll keep this random for now
+
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td>${title}</td>
+                        <td>${author}</td>
+                        <td>${year}</td>
+                        <td>${index + 1}</td>
+                        <td class="completion-cell">
+                            <div class="completion-bar">
+                                <div class="completion-fill" style="width: ${completion}%"></div>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(newRow);
+                });
+            } catch (error) {
+                console.error('Error fetching books:', error);
+                const tableBody = document.querySelector('.literature-table tbody');
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #666;">
+                            Error loading books. Please try again later.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Call the function when the page loads
+        fetchBooks();
+    </script>
+</body>
+</html> 

@@ -1,0 +1,46 @@
+name: Update Books Data
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  update-books:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch books data
+        run: |
+          curl -o books.csv https://thegreatestbooks.org/index.csv
+          
+      - name: Convert CSV to JSON
+        run: |
+          node -e "
+            const fs = require('fs');
+            const csv = fs.readFileSync('books.csv', 'utf-8');
+            const rows = csv.split('\n')
+              .map(row => row.split(','))
+              .filter(row => row.length >= 3)
+              .slice(1, 101)  // Skip header, take first 100
+              .map(([title, author, year]) => ({
+                title,
+                author,
+                year,
+                rank: rows.indexOf([title, author, year]) + 1
+              }));
+            fs.writeFileSync('books.json', JSON.stringify(rows, null, 2));
+          "
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add books.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update books data" && git push) 
+
+      - name: Run update-books job with act
+        run: |
+          act -j update-books

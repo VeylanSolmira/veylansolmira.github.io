@@ -5,6 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ecological Intelligence Across Substrates</title>
+    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css' rel='stylesheet' />
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js'></script>
+    <style>
+        #calendar {
+            width: 100%; /* Full width */
+            height: 600px; /* Set a specific height */
+        }
+    </style>
 </head>
 <body>
     <h1>Ecological Intelligence Across Substrates</h1>
@@ -24,5 +34,31 @@
 
     <!-- <h2>Development</h2>
     <p>This content is loaded from content.html in development mode. In production, it will be loaded from the selected commit version.</p> -->
+
+    <div id='calendar'></div>
+
+    <script>
+        $(document).ready(function() {
+            console.log('Document ready, initializing calendar...');
+            $('#calendar').fullCalendar({
+                events: [
+                    {
+                        title: 'Task 1',
+                        start: '2023-10-01',
+                        description: 'Completed Task 1',
+                    },
+                    {
+                        title: 'Task 2',
+                        start: '2023-10-05',
+                        description: 'Completed Task 2',
+                    },
+                ],
+                eventRender: function(event, element) {
+                    element.find('.fc-title').append('<br/>' + event.description);
+                }
+            });
+            console.log('Calendar initialized.');
+        });
+    </script>
 </body>
 </html>
