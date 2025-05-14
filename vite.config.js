@@ -24,7 +24,11 @@ export default defineConfig({
     // Rollup options
     rollupOptions: {
       input: {
-        main: 'index.html'
+        main: 'index.html',
+        literature: 'literature.html',
+        interests: 'interests.html',
+        calendar: 'calendar.html',
+        content: 'content.html'
       }
     }
   },
