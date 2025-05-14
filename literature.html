@@ -25,6 +25,8 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            height: 3.5rem;
+            box-sizing: border-box;
         }
 
         .toolbar h1 {
@@ -32,6 +34,7 @@
             font-size: 1.2rem;
             font-weight: 600;
             color: #333;
+            line-height: 1;
         }
 
         .toolbar h1 a {
@@ -55,6 +58,8 @@
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
+            margin-left: 0.5rem;
+            line-height: 1;
         }
 
         .toolbar-button:hover {
@@ -66,10 +71,10 @@
             background: #eee;
         }
 
+        /* Content spacing */
         .main-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding:3rem 2rem 2rem;
+            padding-top: 5rem;
+            margin-top: 0;
         }
 
         .literature-table {
@@ -161,13 +166,15 @@
             transition: background-color 0.3s ease;
         }
 
+        /* Mobile styles */
         @media (max-width: 768px) {
             .toolbar {
                 padding: 0.75rem 1rem;
+                height: 3.25rem;
             }
-
+            
             .main-content {
-                padding: 4rem 1rem 1rem;
+                padding-top: 4rem;
             }
 
             .literature-table {
@@ -175,15 +182,31 @@
                 overflow-x: auto;
             }
         }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
     <script src="toolbar.js"></script>
     <script src="config.js"></script>
 </head>
 <body>
-    <!-- <div class="toolbar">
+    <div class="toolbar">
         <h1><a href="index.html">Ecological AI</a></h1>
-        <a href="interests.html" class="toolbar-button">Back to Interests</a>
-    </div> -->
+        <div>
+            <a href="interests.html" class="toolbar-button">General Interests</a>
+            <a href="calendar.html" class="toolbar-button">Schedule</a>
+        </div>
+    </div>
 
     <div class="main-content">
         <h2>Literature Review <span id="completion-summary" style="font-size: 0.8em; font-weight: normal; color: #666;"></span></h2>
@@ -198,13 +221,29 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Sample data for testing
                 <tr>
                     <td>1</td>
-                    <td>The Ecological Impact of AI Systems</td>
-                    <td>Smith, J.</td>
-                    <td>2023</td>
+                    <td>The Selfish Gene</td>
+                    <td>Richard Dawkins</td>
+                    <td>1976</td>
                     <td>0.75</td>
                 </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Sapiens</td>
+                    <td>Yuval Noah Harari</td>
+                    <td>2011</td>
+                    <td>0.5</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>The Origin of Species</td>
+                    <td>Charles Darwin</td>
+                    <td>1859</td>
+                    <td>0.25</td>
+                </tr>
+                -->
             </tbody>
         </table>
     </div>
@@ -341,6 +380,17 @@
                 const tableBody = document.querySelector('.literature-table tbody');
                 tableBody.innerHTML = ''; // Clear existing rows
 
+                // Create loading indicator outside the table
+                const loadingDiv = document.createElement('div');
+                loadingDiv.style.cssText = 'text-align: center; padding: 2rem;';
+                loadingDiv.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                        <div class="loading-spinner"></div>
+                        <div>Loading literature data...</div>
+                    </div>
+                `;
+                tableBody.parentElement.insertBefore(loadingDiv, tableBody);
+
                 // Process first 100 books
                 const books = rows.slice(1, 101); // Skip header row, take first 100 books
                 
@@ -374,6 +424,9 @@
                     `;
                     tableBody.appendChild(newRow);
                 });
+
+                // Remove loading indicator
+                loadingDiv.remove();
 
                 // Calculate and display completion summary
                 let totalCompletion = 0;
